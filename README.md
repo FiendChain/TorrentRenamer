@@ -4,7 +4,7 @@ Renames all torrents to the format {TITLE}-SxxExx-{NAME}.{ext} and places them i
 E.g. A.TV.Show//Season 01//A.TV.Show-S01E01-The.Name.mp4
 
 Uses the 
-[tvdb API](https://thetvdb.com/api-information)
+[tvdb API](https://api.thetvdb.com/swagger)
 to get names for the files, then does regex and filtering to rename and delete files.
 
 ## Usage
