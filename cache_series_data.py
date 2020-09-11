@@ -4,6 +4,7 @@ import json
 import re
 
 from src.api import Api
+from src.util import get_series_from_path
 
 def main():
     parser = ArgumentParser()
@@ -18,19 +19,15 @@ def main():
 
     base_dir = args.base_dir
 
-    p = re.compile(r"([\w\s\-\_]+)")
-
     for filename in sorted(os.listdir(base_dir)):
         filepath = os.path.join(base_dir, filename)
         if not os.path.isdir(filepath):
             continue
-
-        m = p.findall(filename)
-        if len(m) == 0:
+        
+        sname = get_series_from_path(filename)
+        if sname is None:
             print(f"format err {filename}")
             continue
-
-        sname = m[0]
 
         metapath = os.path.join(filepath, metaname)
         if os.path.exists(metapath):

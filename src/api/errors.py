@@ -15,3 +15,9 @@ class UnknownResponseException(Exception):
     def __init__(self, response):
         super().__init__("Unknown response")
         self.response = response
+    
+    def __str__(self):
+        return f"UnknownResponse(status={self.response.status_code})"
+    
+    def __repr__(self):
+        return self.__str__()

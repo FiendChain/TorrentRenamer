@@ -78,6 +78,9 @@ class Api:
             raise AuthorizationError(BASE_URL+"search/series")
         if response.status_code == 404: # no match
             return None
+        # empty search
+        if response.status_code == 405:
+            return []
         if response.status_code != 200:
             raise UnknownResponseException(response)
         return json.loads(response.text).get('data', [])

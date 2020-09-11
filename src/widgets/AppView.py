@@ -1,22 +1,30 @@
 from PyQt5.QtWidgets import QWidget, QSplitter, QMainWindow, QTabWidget
 from PyQt5.QtWidgets import QListWidget
+from PyQt5.QtWidgets import QPushButton
 
 from .DirectoryList import DirectoryList
 from .RenameView import RenameView
+
+from .SeriesSelector import SeriesSelector
+
+from src.util import get_series_from_path
+
 
 class AppView(QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         splitter = QSplitter()
+        self.api = None
+        self.app = None
 
         self.dir_list = DirectoryList()
         self.tabbed_view = self.create_tabbed_view()
         splitter.addWidget(self.dir_list)
         splitter.addWidget(self.tabbed_view)
-
+        splitter.addWidget(self.create_right_panel())
         self.setCentralWidget(splitter)
-    
+
     def create_tabbed_view(self):
         tab_view = QTabWidget()
         
@@ -33,6 +41,30 @@ class AppView(QMainWindow):
         tab_view.addTab(self.completed_view, "Complete")
        
         return tab_view
+    
+    def create_right_panel(self):
+        search_btn = QPushButton("search")
+        search_btn.pressed.connect(self.launch_series_popup)
+
+        return search_btn
+
+    def launch_series_popup(self):
+        subdir = self.app.get_sub_dir()
+        if subdir is None:
+            return
+
+        sname = get_series_from_path(subdir)
+            
+        w = SeriesSelector(self.api)
+        w.set_search_text(sname)
+        w.search()
+        data = w.exec_()
+        if data is None:
+            return
+        # TODO: updated data
+    
+    def set_api(self, api):
+        self.api = api
 
     def set_app(self, app):
         self.app = app

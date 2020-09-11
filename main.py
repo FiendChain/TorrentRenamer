@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QApplication
 from src.widgets import AppView
 from src.models import App
+from src.api import Api
 from argparse import ArgumentParser
 import os
 
@@ -10,8 +11,10 @@ def main():
     qapp.setStyle("Fusion")
 
     app = App()
+    api = Api.load_api("credentials.json")
     app_view = AppView()
     app_view.set_app(app)
+    app_view.set_api(api)
 
     app.set_root_dir("F:/TV Shows/")
 

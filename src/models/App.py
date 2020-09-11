@@ -35,6 +35,12 @@ class App(QObject):
     def select_base_dir(self, idx):
         self.idx = idx
         self.update_parser()
+    
+    def get_sub_dir(self):
+        try:
+            return self.sub_dirs[self.idx]
+        except IndexError:
+            return None
 
     def update_parser(self):
         base_dir = os.path.join(self.root_dir, self.sub_dirs[self.idx])
