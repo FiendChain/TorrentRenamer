@@ -47,7 +47,7 @@ def parse_directory(base_dir, title=None):
     conflicts = []
     renames = []
     ignores = []
-    corrects = []
+    completed = []
 
     for old_path, info in mapper.items():
         new_name = get_new_name(info, ep_lookup, title)
@@ -56,7 +56,7 @@ def parse_directory(base_dir, title=None):
             continue
         
         if os.path.realpath(old_path) == os.path.realpath(new_name):
-            corrects.append(old_path)
+            completed.append(old_path)
             continue
 
         k = (info.season, info.episode, info.ext)
@@ -65,7 +65,7 @@ def parse_directory(base_dir, title=None):
         else:
             renames.append((old_path, new_name))
     
-    return {"conflicts": conflicts, "renames": renames, "ignores": ignores, "deletes": deletes, "corrects": corrects}
+    return {"conflicts": conflicts, "renames": renames, "ignores": ignores, "deletes": deletes, "completed": completed}
 
 
 def get_new_name(info, ep_lookup, title):

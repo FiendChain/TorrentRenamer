@@ -7,4 +7,4 @@ class ParserResults:
         self.conflicts = [Entry(old, new, enabled=False) for old, new in p.get('conflicts')]
         self.ignores = p.get('ignores')
         self.deletes = p.get('deletes')
-        self.corrects = p.get('corrects')
+        self.completed = p.get('completed')

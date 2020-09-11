@@ -22,15 +22,15 @@ class AppView(QMainWindow):
         
         self.rename_view = RenameView()
         self.conflict_view = RenameView()
-        self.ignore_view = QListWidget()
         self.delete_view = QListWidget()
-        self.correct_view = QListWidget()
+        self.ignore_view = QListWidget()
+        self.completed_view = QListWidget()
 
         tab_view.addTab(self.rename_view, "Renames")
         tab_view.addTab(self.conflict_view, "Conflicts")
-        tab_view.addTab(self.ignore_view, "Ignores")
         tab_view.addTab(self.delete_view, "Deletes")
-        tab_view.addTab(self.correct_view, "Corrects")
+        tab_view.addTab(self.ignore_view, "Ignores")
+        tab_view.addTab(self.completed_view, "Complete")
        
         return tab_view
 
@@ -46,7 +46,7 @@ class AppView(QMainWindow):
 
         self.ignore_view.clear()
         self.delete_view.clear()
-        self.correct_view.clear()
+        self.completed_view.clear()
         
         for ignore in parser.ignores:
             self.ignore_view.addItem(ignore)
@@ -54,14 +54,14 @@ class AppView(QMainWindow):
         for delete in parser.deletes:
             self.delete_view.addItem(delete)
         
-        for correct in parser.corrects:
-            self.correct_view.addItem(correct)
+        for complete in parser.completed:
+            self.completed_view.addItem(complete)
 
         self.tabbed_view.setTabText(0, self.get_tab_text("Renames", len(parser.renames)))
         self.tabbed_view.setTabText(1, self.get_tab_text("Conflicts", len(parser.conflicts)))
-        self.tabbed_view.setTabText(2, self.get_tab_text("Ignores", len(parser.ignores)))
-        self.tabbed_view.setTabText(3, self.get_tab_text("Deletes", len(parser.deletes)))
-        self.tabbed_view.setTabText(4, self.get_tab_text("Corrects", len(parser.corrects)))
+        self.tabbed_view.setTabText(2, self.get_tab_text("Deletes", len(parser.deletes)))
+        self.tabbed_view.setTabText(3, self.get_tab_text("Ignores", len(parser.ignores)))
+        self.tabbed_view.setTabText(4, self.get_tab_text("Completed", len(parser.completed)))
     
     def get_tab_text(self, prefix, n):
         if n == 0:
