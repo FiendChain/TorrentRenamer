@@ -7,7 +7,17 @@ Uses the
 [tvdb API](https://api.thetvdb.com/swagger)
 to get names for the files, then does regex and filtering to rename and delete files.
 
-## Usage
+## Gui Usage
+```bash
+# activate your virtual environment or install dependencies
+pip install -r requirements.txt
+
+# start the qt gui app
+# use python main.py -h for help
+python main.py [ROOTDIR] [OPTIONS]
+```
+
+## CLI Usage
 Run the following scripts (1-4) in the following order.
 
 ```bash
@@ -36,8 +46,6 @@ python delete_garbage.py (base_dir)
 ```
 
 ## Todo
-- Find method to automatically update cache when tv show is updated
-- Implement a gui
 - Move "deleted" files to the recycle bin
 - Add a mapping file, which links the original filepath to new filepath
 - Implement support for active torrents 
