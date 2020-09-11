@@ -19,6 +19,7 @@ def main():
     app_view = AppView(app)
     app.set_root_dir(args.rootdir)
 
+    app_view.setWindowTitle("Torrent Renamer")
     app_view.show()
 
     qapp.exec_()

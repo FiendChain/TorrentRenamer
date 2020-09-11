@@ -7,6 +7,9 @@ Uses the
 [tvdb API](https://api.thetvdb.com/swagger)
 to get names for the files, then does regex and filtering to rename and delete files.
 
+## Gallery
+![alt text](docs/window_v1.png "GUI")
+
 ## Gui Usage
 ```bash
 # activate your virtual environment or install dependencies
