@@ -12,9 +12,7 @@ def main():
 
     api = Api.load_api("credentials.json")
     app = App(api)
-    app_view = AppView()
-    app_view.set_app(app)
-
+    app_view = AppView(app)
     app.set_root_dir("F:/TV Shows/")
 
     app_view.show()

@@ -1,5 +1,5 @@
 import os
-from src.util import parse_directory
+from src.util import parse_directory, clean
 from .ParserResults import ParserResults
 
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject
@@ -9,6 +9,7 @@ class App(QObject):
     basedirsUpdate = pyqtSignal(list)
     parserUpdate = pyqtSignal(ParserResults)
     onError = pyqtSignal(str)
+    onWarning = pyqtSignal(str)
 
     def __init__(self, api, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -86,6 +87,37 @@ class App(QObject):
         with open(filepath, "w+") as fp:
             json.dump(data, fp, indent=1) 
         self.update_parser()
+
+    def rename(self):
+        if self.parser_results is None:
+            self.onWarning.emit("folder is missing metadata")
+            return
+        basedir = self.get_base_dir()
+        for entry in self.parser_results.renames:
+            if not entry.enabled:
+                continue
+            old_path = os.path.join(basedir, entry.old_path)
+            new_path = os.path.join(basedir, entry.new_path)
+
+            os.rename(old_path, new_path)
+            # print(f"ren {old_path} => {new_path}")
+    
+    def delete_garbage(self):
+        if self.parser_results is None:
+            self.onWarning.emit("folder is missing metadata")
+            return
+        basedir = self.get_base_dir()
+        for path in self.parser_results.deletes:
+            filepath = os.path.join(basedir, path) 
+            os.remove(filepath)
+            # print(f"del {filepath}")
+    
+    def cleanup(self):
+        base_dir = self.get_base_dir()
+        if base_dir is None:
+            self.onError.emit("no base directory selected")
+            return
+        clean(base_dir)
 
     def update_parser(self):
         base_dir = self.get_base_dir()

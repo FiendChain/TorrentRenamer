@@ -27,6 +27,9 @@ class SeriesSelector(QDialog):
         layout.addWidget(self.create_result_table())
         layout.addWidget(self.create_button_group())
         self.setLayout(layout)
+
+        self.setWindowTitle("Select series")
+        # self.resize(self.maximumSize())
     
     def create_search_bar(self):
         def update_search_text(txt):

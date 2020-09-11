@@ -1,4 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QSplitter, QMainWindow, QTabWidget, QHBoxLayout
+from PyQt5.QtWidgets import\
+    QWidget, QSplitter, QMainWindow, QTabWidget,\
+    QHBoxLayout, QGridLayout
 from PyQt5.QtWidgets import QListWidget
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QMessageBox
@@ -10,21 +12,57 @@ from .SeriesSelector import SeriesSelector
 
 from src.util import get_series_from_path
 
+# light wrapper for controlling app
+class AppControls:
+    def __init__(self, app):
+        self.app = app
+
+    def refresh(self):
+        self.app.refresh_episodes_data()
+
+    def rename(self):
+        self.app.rename()
+        self.app.cleanup()
+        self.app.update_parser()
+
+    def delete_garbage(self):
+        self.app.delete_garbage()
+        self.app.cleanup()
+        self.app.update_parser()
+
+    def cleanup(self):
+        self.app.cleanup()
+        self.app.update_parser()
+
+    def auto(self):
+        self.app.rename()
+        self.app.delete_garbage()
+        self.app.cleanup()
+        self.app.update_parser()
 
 class AppView(QMainWindow):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, app, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        splitter = QSplitter()
-        self.api = None
-        self.app = None
+        self.app = app
+        self.ctl = AppControls(self.app)
 
+        splitter = QSplitter()
         self.dir_list = DirectoryList()
         self.tabbed_view = self.create_tabbed_view()
         splitter.addWidget(self.dir_list)
         splitter.addWidget(self.tabbed_view)
         splitter.addWidget(self.create_right_panel())
         self.setCentralWidget(splitter)
+
+        # connect app
+        app.basedirsUpdate.connect(self.dir_list.update_list)
+        self.dir_list.indexChanged.connect(app.select_base_dir)
+        self.dir_list.onRefresh.connect(app.refresh_root_dir)
+        app.parserUpdate.connect(self.on_parser_update)
+
+        app.onError.connect(self.on_error)
+        app.onWarning.connect(self.on_warning)
 
     def create_tabbed_view(self):
         tab_view = QTabWidget()
@@ -45,19 +83,30 @@ class AppView(QMainWindow):
     
     def create_right_panel(self):
         group = QWidget()
-        layout = QHBoxLayout()
+        layout = QGridLayout()
 
         search_btn = QPushButton("Select series")
         search_btn.pressed.connect(self.launch_series_popup)
 
-        def refresh():
-            self.app.refresh_episodes_data()
+        ctl = self.ctl 
 
         refresh_episodes = QPushButton("Refresh episodes")
-        refresh_episodes.pressed.connect(refresh)
+        refresh_episodes.pressed.connect(ctl.refresh)
+        rename_btn = QPushButton("Rename")
+        rename_btn.pressed.connect(ctl.rename)
+        delete_btn = QPushButton("Remove Garbage")
+        delete_btn.pressed.connect(ctl.delete_garbage)
+        cleanup_btn = QPushButton("Cleanup")
+        cleanup_btn.pressed.connect(ctl.cleanup)
+        auto_btn = QPushButton("Auto")
+        auto_btn.pressed.connect(ctl.auto)
 
         layout.addWidget(search_btn)
         layout.addWidget(refresh_episodes)
+        layout.addWidget(rename_btn)
+        layout.addWidget(delete_btn)
+        layout.addWidget(cleanup_btn)
+        layout.addWidget(auto_btn)
 
         group.setLayout(layout)
 
@@ -84,14 +133,13 @@ class AppView(QMainWindow):
         msg.setText(str(error))
         msg.setIcon(QMessageBox.Critical)
         msg.exec_()
-
-    def set_app(self, app):
-        self.app = app
-        app.basedirsUpdate.connect(self.dir_list.update_list)
-        self.dir_list.indexChanged.connect(app.select_base_dir)
-        self.dir_list.onRefresh.connect(app.refresh_root_dir)
-        app.parserUpdate.connect(self.on_parser_update)
-        app.onError.connect(self.on_error)
+        
+    def on_warning(self, warning):
+        msg = QMessageBox()
+        msg.setWindowTitle("Warning")
+        msg.setText(str(warning))
+        msg.setIcon(QMessageBox.Warning)
+        msg.exec_()
     
     def on_parser_update(self, parser):
         self.rename_view.set_model(parser.renames)
