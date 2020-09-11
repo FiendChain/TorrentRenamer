@@ -70,7 +70,7 @@ class SeriesSelector(QDialog):
         def submit():
             self.accept()
 
-        self.cancel_btn = QPushButton("cancel")
+        self.cancel_btn = QPushButton("Cancel")
         self.submit_btn = QPushButton("Submit")
         self.cancel_btn.pressed.connect(cancel)
         self.submit_btn.pressed.connect(submit)
@@ -90,7 +90,7 @@ class SeriesSelector(QDialog):
         for i, entry in enumerate(self.model):
             for j, txt in enumerate(entry.columns):
                 label = QLabel(txt)
-                label.setContentsMargins(2, 1, 2, 1)
+                label.setContentsMargins(5, 1, 5, 1)
                 self.table.setCellWidget(i, j, label)
         
         self.table.resizeColumnsToContents()

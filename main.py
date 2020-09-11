@@ -10,11 +10,10 @@ def main():
     qapp = QApplication([])
     qapp.setStyle("Fusion")
 
-    app = App()
     api = Api.load_api("credentials.json")
+    app = App(api)
     app_view = AppView()
     app_view.set_app(app)
-    app_view.set_api(api)
 
     app.set_root_dir("F:/TV Shows/")
 

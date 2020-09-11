@@ -1,6 +1,7 @@
-from PyQt5.QtWidgets import QWidget, QSplitter, QMainWindow, QTabWidget
+from PyQt5.QtWidgets import QWidget, QSplitter, QMainWindow, QTabWidget, QHBoxLayout
 from PyQt5.QtWidgets import QListWidget
 from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QMessageBox
 
 from .DirectoryList import DirectoryList
 from .RenameView import RenameView
@@ -43,10 +44,24 @@ class AppView(QMainWindow):
         return tab_view
     
     def create_right_panel(self):
-        search_btn = QPushButton("search")
+        group = QWidget()
+        layout = QHBoxLayout()
+
+        search_btn = QPushButton("Select series")
         search_btn.pressed.connect(self.launch_series_popup)
 
-        return search_btn
+        def refresh():
+            self.app.refresh_episodes_data()
+
+        refresh_episodes = QPushButton("Refresh episodes")
+        refresh_episodes.pressed.connect(refresh)
+
+        layout.addWidget(search_btn)
+        layout.addWidget(refresh_episodes)
+
+        group.setLayout(layout)
+
+        return group
 
     def launch_series_popup(self):
         subdir = self.app.get_sub_dir()
@@ -55,16 +70,20 @@ class AppView(QMainWindow):
 
         sname = get_series_from_path(subdir)
             
-        w = SeriesSelector(self.api)
+        w = SeriesSelector(self.app.api)
         w.set_search_text(sname)
         w.search()
         data = w.exec_()
         if data is None:
             return
-        # TODO: updated data
+        self.app.update_series_data(data)
     
-    def set_api(self, api):
-        self.api = api
+    def on_error(self, error):
+        msg = QMessageBox()
+        msg.setWindowTitle("Error")
+        msg.setText(str(error))
+        msg.setIcon(QMessageBox.Critical)
+        msg.exec_()
 
     def set_app(self, app):
         self.app = app
@@ -72,6 +91,7 @@ class AppView(QMainWindow):
         self.dir_list.indexChanged.connect(app.select_base_dir)
         self.dir_list.onRefresh.connect(app.refresh_root_dir)
         app.parserUpdate.connect(self.on_parser_update)
+        app.onError.connect(self.on_error)
     
     def on_parser_update(self, parser):
         self.rename_view.set_model(parser.renames)
