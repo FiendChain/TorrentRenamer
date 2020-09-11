@@ -38,6 +38,7 @@ class AppView(QMainWindow):
         self.app = app
         app.basedirsUpdate.connect(self.dir_list.update_list)
         self.dir_list.indexChanged.connect(app.select_base_dir)
+        self.dir_list.onRefresh.connect(app.refresh_root_dir)
         app.parserUpdate.connect(self.on_parser_update)
     
     def on_parser_update(self, parser):
