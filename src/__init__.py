@@ -1,1 +1,0 @@
-from .renaming import parse_directory

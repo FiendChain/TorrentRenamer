@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 import os
-from src import parse_directory
+from src.util import parse_directory, clean
 
 
 def main():
@@ -51,17 +51,6 @@ def main():
 
         print(">>> cleaning")
         clean(base_dir)
-
-def clean(base_dir):
-    for filename in os.listdir(base_dir):
-        filepath = os.path.join(base_dir, filename)
-        if os.path.isdir(filepath):
-            clean(filepath)
-    
-    n = len(os.listdir(base_dir))
-    if n == 0:
-        print(f"removing {base_dir}")
-        os.rmdir(base_dir)
 
 if __name__ == '__main__':
     main()

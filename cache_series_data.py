@@ -3,7 +3,7 @@ import os
 import json
 import re
 
-from api import Api
+from src.api import Api
 
 def main():
     parser = ArgumentParser()

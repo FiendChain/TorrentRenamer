@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 import os, json, re
 
-from api import Api
+from src.api import Api
 
 def main():
     parser = ArgumentParser()
