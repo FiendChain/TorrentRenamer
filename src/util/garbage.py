@@ -16,11 +16,14 @@ def del_filter(name):
         return True
     return False
 
-def clean(base_dir):
+def clean(base_dir, root=True):
     for filename in os.listdir(base_dir):
         filepath = os.path.join(base_dir, filename)
         if os.path.isdir(filepath):
-            clean(filepath)
+            clean(filepath, root=False)
+    
+    if root:
+        return
     
     n = len(os.listdir(base_dir))
     if n == 0:

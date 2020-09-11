@@ -91,7 +91,7 @@ class App(QObject):
     def rename(self):
         if self.parser_results is None:
             self.onWarning.emit("folder is missing metadata")
-            return
+            return False
         basedir = self.get_base_dir()
         for entry in self.parser_results.renames:
             if not entry.enabled:
@@ -101,23 +101,26 @@ class App(QObject):
 
             os.rename(old_path, new_path)
             # print(f"ren {old_path} => {new_path}")
+        return True
     
     def delete_garbage(self):
         if self.parser_results is None:
             self.onWarning.emit("folder is missing metadata")
-            return
+            return False
         basedir = self.get_base_dir()
         for path in self.parser_results.deletes:
             filepath = os.path.join(basedir, path) 
             os.remove(filepath)
             # print(f"del {filepath}")
+        return True
     
     def cleanup(self):
         base_dir = self.get_base_dir()
         if base_dir is None:
             self.onError.emit("no base directory selected")
-            return
+            return False
         clean(base_dir)
+        return True
 
     def update_parser(self):
         base_dir = self.get_base_dir()
@@ -125,5 +128,6 @@ class App(QObject):
             p = parse_directory(base_dir)
         except IOError:
             p = {}
+            
         self.parser_results = ParserResults(p) 
         self.parserUpdate.emit(self.parser_results)

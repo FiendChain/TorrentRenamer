@@ -21,23 +21,23 @@ class AppControls:
         self.app.refresh_episodes_data()
 
     def rename(self):
-        self.app.rename()
-        self.app.cleanup()
+        self.app.rename() and\
+        self.app.cleanup() and\
         self.app.update_parser()
 
     def delete_garbage(self):
-        self.app.delete_garbage()
-        self.app.cleanup()
+        self.app.delete_garbage() and\
+        self.app.cleanup() and\
         self.app.update_parser()
 
     def cleanup(self):
-        self.app.cleanup()
+        self.app.cleanup() and\
         self.app.update_parser()
 
     def auto(self):
-        self.app.rename()
-        self.app.delete_garbage()
-        self.app.cleanup()
+        self.app.rename() and\
+        self.app.delete_garbage() and\
+        self.app.cleanup() and\
         self.app.update_parser()
 
 class AppView(QMainWindow):
