@@ -1,11 +1,10 @@
 from .Entry import Entry
 
+# wrap raw dict from parser into usable model
 class ParserResults:
     def __init__(self, p):
-        renames = p.get('renames')
-        conflicts = p.get('conflicts')
-        ignores = p.get('ignores')
-
-        self.renames = [Entry(old, new) for old, new in renames]
-        self.conflicts = conflicts
-        self.ignores = ignores
+        self.renames = [Entry(old, new) for old, new in p.get('renames')]
+        self.conflicts = [Entry(old, new, enabled=False) for old, new in p.get('conflicts')]
+        self.ignores = p.get('ignores')
+        self.deletes = p.get('deletes')
+        self.corrects = p.get('corrects')

@@ -1,5 +1,5 @@
 import os
-from src import parse_directory
+from src.util import parse_directory
 from .ParserResults import ParserResults
 
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject
@@ -30,5 +30,5 @@ class App(QObject):
         self.idx = idx
         base_dir = os.path.join(self.root_dir, self.sub_dirs[self.idx])
         p = parse_directory(base_dir)
-        self.parser_results = ParserResults(p)
+        self.parser_results = ParserResults(p) 
         self.parserUpdate.emit(self.parser_results)

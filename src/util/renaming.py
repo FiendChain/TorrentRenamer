@@ -1,4 +1,5 @@
 from .patterns import get_group
+from .garbage import del_filter
 from collections import Counter
 import os, json, re
 
@@ -25,8 +26,19 @@ def parse_directory(base_dir, title=None):
 
     mapper = recursive_map(base_dir)
 
+    deletes = []
+
+    filtered_mapper = {}
+    for filepath, info in mapper.items():
+        if del_filter(filepath):
+            deletes.append(filepath)
+            continue
+        filtered_mapper[filepath] = info
+    
+    mapper = filtered_mapper
+
     counts = Counter()
-    for _, info in mapper.items():
+    for filepath, info in mapper.items():
         if info is None:
             continue
         k = (info.season, info.episode, info.ext)
@@ -35,6 +47,7 @@ def parse_directory(base_dir, title=None):
     conflicts = []
     renames = []
     ignores = []
+    corrects = []
 
     for old_path, info in mapper.items():
         new_name = get_new_name(info, ep_lookup, title)
@@ -43,7 +56,7 @@ def parse_directory(base_dir, title=None):
             continue
         
         if os.path.realpath(old_path) == os.path.realpath(new_name):
-            ignores.append(old_path)
+            corrects.append(old_path)
             continue
 
         k = (info.season, info.episode, info.ext)
@@ -52,7 +65,7 @@ def parse_directory(base_dir, title=None):
         else:
             renames.append((old_path, new_name))
     
-    return {"conflicts": conflicts, "renames": renames, "ignores": ignores}
+    return {"conflicts": conflicts, "renames": renames, "ignores": ignores, "deletes": deletes, "corrects": corrects}
 
 
 def get_new_name(info, ep_lookup, title):
