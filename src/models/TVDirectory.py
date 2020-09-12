@@ -5,7 +5,7 @@ from src.util import parse_directory, clean
 
 from .ParserResults import ParserResults
 from PyQt5.QtCore import pyqtSignal, QObject
-from .Errors import AppError, AppWarning
+from .Errors import AppError, AppWarning, catch_errors
 
 class TVDirectoryStatus:
     SUCCESS = 1
@@ -15,6 +15,8 @@ class TVDirectoryStatus:
 
 class TVDirectory(QObject):
     statusChanged = pyqtSignal(int)
+    onError = pyqtSignal(str)
+    onWarning = pyqtSignal(str)
 
     def __init__(self, fullpath, api, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -39,14 +41,20 @@ class TVDirectory(QObject):
     def status(self, new_status):
         self._status = new_status
         self.statusChanged.emit(self._status)
-    
+
+    @catch_errors
     def update_series_data(self, data):
-        filepath = os.path.join(self.fullpath, "series.json")
-        with open(filepath, "w+") as fp:
-            json.dump(data, fp, indent=1)
-        sid = data.get("id")
+        try:
+            filepath = os.path.join(self.fullpath, "series.json")
+            with open(filepath, "w+") as fp:
+                json.dump(data, fp, indent=1)
+            sid = data.get("id")
+        except IOError:
+            raise AppError(f"unable to write series.json")
+
         self.refresh_episodes_data_from_sid(sid)
-    
+
+    @catch_errors 
     def refresh_episodes_data(self):
         try:
             filepath = os.path.join(self.fullpath, "series.json")
@@ -57,6 +65,7 @@ class TVDirectory(QObject):
         except IOError:
             raise AppError(f"unable to open series.json")
     
+    @catch_errors 
     def refresh_episodes_data_from_sid(self, sid):
         data = self.api.get_series_episodes(sid)
         if data is None:
@@ -72,7 +81,11 @@ class TVDirectory(QObject):
     def rename(self):
         if self.parser_results is None:
             raise AppWarning(f"missing metadata")
+        self.resolve_renames()
+        self.resolve_conflicts()
 
+    def resolve_renames(self):
+        # resolve renames
         for entry in self.parser_results.renames:
             if not entry.enabled:
                 continue
@@ -81,10 +94,31 @@ class TVDirectory(QObject):
 
             # create new folder
             os.makedirs(os.path.dirname(new_path), exist_ok=True)
-            os.rename(old_path, new_path)
-            logging.info(f"[RENAME] {old_path} => {new_path}")
+            try:
+                os.rename(old_path, new_path)
+                logging.info(f"[RENAME] {old_path} => {new_path}")
+            except IOError:
+                self.onError.emit(f"unable to rename {old_path} => {new_path}")
+    
+    def resolve_conflicts(self):
+        # resolve conflicts
+        for entry in self.parser_results.conflicts:
+            if not entry.enabled:
+                continue
+            old_path = os.path.join(self.fullpath, entry.old_path)
+            new_path = os.path.join(self.fullpath, entry.new_path)
+
+            # create new folder
+            os.makedirs(os.path.dirname(new_path), exist_ok=True)
+            try:
+                os.rename(old_path, new_path)
+                logging.info(f"[CONFLICT] {old_path} => {new_path}")
+            except IOError:
+                self.onError.emit(f"unable to resolve conflict {old_path} => {new_path}")
+                
         return True
     
+    @catch_errors 
     def delete_garbage(self):
         if self.parser_results is None:
             raise AppWarning(f"missing metadata")

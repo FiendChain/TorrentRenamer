@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import\
     QHeaderView, QSizePolicy
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont, QFontMetrics
 
 def center_wrap(widget):
     wrapper = QWidget()
@@ -26,6 +27,9 @@ class RenameView(QWidget):
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.table.verticalHeader().setVisible(False)
 
+        self.font = QFont("", 0)
+        self.font_metric = QFontMetrics(self.font)
+
     def clear(self):
         self.set_model([])
     
@@ -41,26 +45,37 @@ class RenameView(QWidget):
     def create_row(self, entry):
         chk = QCheckBox()
         old_path = QLabel(entry.old_path)
-        # new_path = QLineEdit(entry.new_path)
-        new_path = QLabel(entry.new_path)
+        new_path = QLineEdit(entry.new_path)
+        # new_path = QLabel(entry.new_path)
 
         def chk_callback(state):
             if state == Qt.Checked:
-                entry.enabled= True
+                entry.enabled = True
             elif state == Qt.Unchecked:
                 entry.enabled = False
 
         chk.setCheckState(Qt.Checked if entry.enabled else Qt.Unchecked)
         chk.stateChanged.connect(chk_callback)
         
-        # def path_callback(path):
-        #     entry.new_path = path 
+        def path_callback(path):
+            if path != entry.new_path:
+                chk.setCheckState(Qt.Checked)
+
+            entry.new_path = path 
+            w = self.font_metric.width(path)
+            new_path.setMinimumWidth(w)
+            # new_path.setFixedWidth(w)
+            self.table.resizeColumnsToContents()
         
-        # new_path.textEdited.connect(path_callback)
-        # new_path.resize
-        # new_path.setAlignment(Qt.AlignLeft)
+        new_path.textChanged.connect(path_callback)
+        new_path.setAlignment(Qt.AlignLeft)
+        new_path.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Expanding)
+
+        w = self.font_metric.width(entry.new_path)
+        new_path.setMinimumWidth(w)
 
         return (center_wrap(chk), old_path, new_path)
+    
 
     
        

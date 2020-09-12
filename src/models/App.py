@@ -1,20 +1,9 @@
 import os
 from .TVDirectory import TVDirectory
-from .Errors import AppError, AppWarning
-
+from .Errors import AppError, AppWarning, catch_errors
 
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject, QThread
 import json
-
-def catch_errors(func):
-    def wrapper(self, *args, **kwargs):
-        try:
-            return func(self, *args, **kwargs)
-        except AppError as ex:
-            self.onError.emit(ex.msg)
-        except AppWarning as ex:
-            self.onError.emit(ex.msg)
-    return wrapper 
 
 class RefreshThread(QThread):
     def __init__(self, app):
@@ -80,6 +69,8 @@ class App(QObject):
             if not os.path.isdir(filepath):
                 continue
             directory = TVDirectory(filepath, self.api)
+            directory.onError.connect(self.onError)
+            directory.onWarning.connect(self.onWarning)
             new_directories.append(directory)
             self.directory_lookup[filename] = directory
         # so that we get correct order

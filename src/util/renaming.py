@@ -55,13 +55,11 @@ def parse_directory(base_dir, title=None):
             ignores.append(old_path)
             continue
         
-        if os.path.realpath(old_path) == os.path.realpath(new_name):
-            completed.append(old_path)
-            continue
-
         k = (info.season, info.episode, info.ext)
         if counts[k] > 1:
             conflicts.append((old_path, new_name))
+        elif os.path.realpath(old_path) == os.path.realpath(new_name):
+            completed.append(old_path)
         else:
             renames.append((old_path, new_name))
     
