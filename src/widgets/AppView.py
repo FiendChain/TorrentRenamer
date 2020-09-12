@@ -25,10 +25,13 @@ class AppView(QMainWindow):
         splitter.addWidget(self.create_right_panel())
         self.setCentralWidget(splitter)
 
-        # connect app
+        # app <=> dirlist
         app.directoriesUpdate.connect(self.dir_list.update_directories)
         self.dir_list.indexChanged.connect(app.select_base_dir)
-        self.dir_list.onRefresh.connect(app.refresh_root_dir)
+        self.dir_list.onSoftRefresh.connect(app.soft_refresh_directories)
+        self.dir_list.onHardRefresh.connect(app.hard_refresh_directories)
+
+        # app => dirview
         app.onDirectorySelect.connect(self.dir_view.set_directory)
 
         app.onError.connect(self.on_error)
@@ -42,15 +45,15 @@ class AppView(QMainWindow):
         search_btn.pressed.connect(self.launch_series_popup)
 
         refresh_episodes = QPushButton("Refresh episodes")
-        refresh_episodes.pressed.connect(self.app.refresh)
+        refresh_episodes.pressed.connect(self.app.dir_refresh)
         rename_btn = QPushButton("Rename")
-        rename_btn.pressed.connect(self.app.rename)
+        rename_btn.pressed.connect(self.app.dir_rename)
         delete_btn = QPushButton("Remove Garbage")
-        delete_btn.pressed.connect(self.app.delete_garbage)
+        delete_btn.pressed.connect(self.app.dir_delete_garbage)
         cleanup_btn = QPushButton("Cleanup")
-        cleanup_btn.pressed.connect(self.app.cleanup)
+        cleanup_btn.pressed.connect(self.app.dir_cleanup)
         auto_btn = QPushButton("Auto")
-        auto_btn.pressed.connect(self.app.auto)
+        auto_btn.pressed.connect(self.app.dir_auto)
 
         layout.addWidget(search_btn)
         layout.addWidget(refresh_episodes)

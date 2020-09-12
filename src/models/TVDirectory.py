@@ -16,13 +16,15 @@ class TVDirectoryStatus:
 class TVDirectory(QObject):
     statusChanged = pyqtSignal(int)
 
-    def __init__(self, fullpath, *args, **kwargs):
+    def __init__(self, fullpath, api, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not os.path.isdir(fullpath):
             raise IOError(f"{fullpath} is not a directory")
         self.fullpath = fullpath
         self.rootdir = os.path.dirname(fullpath)
         self.basedir = os.path.basename(fullpath)
+
+        self.api = api
 
         self._status = TVDirectoryStatus.UNKNOWN
         self.parser_data = {}

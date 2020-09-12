@@ -3,7 +3,7 @@ from .TVDirectory import TVDirectory
 from .Errors import AppError, AppWarning
 
 
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject, QThread
 import json
 
 def catch_errors(func):
@@ -16,6 +16,15 @@ def catch_errors(func):
             self.onError.emit(ex.msg)
     return wrapper 
 
+class HardRefreshThread(QThread):
+    def __init__(self, app):
+        super().__init__(parent=app)
+        self.app = app
+    
+    def run(self):
+        self.app.refresh_root_dir()
+        for directory in self.app.directories:
+            directory.update_parser()
 
 class App(QObject):
     directoriesUpdate = pyqtSignal(list)
@@ -32,6 +41,8 @@ class App(QObject):
         self.parser_results = None
         self.idx = 0
 
+        self.hard_refresh_thread = HardRefreshThread(self)
+
     def refresh_root_dir(self):
         if self.root_dir is None:
             return
@@ -41,7 +52,7 @@ class App(QObject):
             filepath = os.path.join(self.root_dir, filename)
             if not os.path.isdir(filepath):
                 continue
-            directory = TVDirectory(filepath)
+            directory = TVDirectory(filepath, self.api)
             self.directories.append(directory)
         self.directoriesUpdate.emit(self.directories)
     
@@ -59,31 +70,44 @@ class App(QObject):
     
     def update_series_data(self, data):
         self.current_directory.update_series_data(data)
+    
+    def soft_refresh_directories(self):
+        pass
+        # self.refresh_root_dir(p)
+        # for directory in self.directories:
+        #     directory.update_parser()
+    
+    def hard_refresh_directories(self):
+        if self.hard_refresh_thread.isRunning():
+            return
+        self.hard_refresh_thread.start()
+        
+        
             
     @catch_errors
-    def refresh(self):
+    def dir_refresh(self):
         self.current_directory.refresh_episodes_data()
         self.current_directory.update_parser()
 
     @catch_errors
-    def rename(self):
+    def dir_rename(self):
         self.current_directory.rename()
         self.current_directory.cleanup()
         self.current_directory.update_parser()
 
     @catch_errors
-    def delete_garbage(self):
+    def dir_delete_garbage(self):
         self.current_directory.delete_garbage()
         self.current_directory.cleanup()
         self.current_directory.update_parser()
 
     @catch_errors
-    def cleanup(self):
+    def dir_cleanup(self):
         self.current_directory.cleanup()
         self.current_directory.update_parser()
 
     @catch_errors
-    def auto(self):
+    def dir_auto(self):
         self.current_directory.rename()
         self.current_directory.delete_garbage()
         self.current_directory.cleanup()
