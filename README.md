@@ -8,16 +8,23 @@ Uses the
 to get names for the files, then does regex and filtering to rename and delete files.
 
 ## Gallery
-![alt text](docs/window_v1.png "GUI")
+![alt text](docs/window_v2.png "GUI")
+
+## Credentials
+For both the gui app and cli scripts, you need to supply your TVDB api credentials. 
+See "example-credentials.json" for the json template.
+The default path that is read is "credentials.json".
 
 ## Gui Usage
 ```bash
 # activate your virtual environment or install dependencies
 pip install -r requirements.txt
 
-# start the qt gui app
-# use python main.py -h for help
-python main.py [ROOTDIR] [OPTIONS]
+# start the qt gui app for development
+fbs run
+
+# build the gui app
+fbs freeze
 ```
 
 ## CLI Usage
@@ -27,12 +34,12 @@ Run the following scripts (1-4) in the following order.
 # 1. Cache all data about each tv show in each folder inside base
 #    For each folder, it will prompt a list of possible tv shows
 #    Generates a series.json at the root of the subdirectory
-python cache_series_data.py (base_dir)
+python scripts/cache_series_data.py (base_dir)
 
 # 2. Cache all data about the episodes for each tv show
 #    For each folder it generates an episodes.json file
 #    This contains a list of data for each episode (to the date)
-python cache_episodes_data.py (base_dir)
+python scripts/cache_episodes_data.py (base_dir)
 
 # 3. Rename the files inside each folder
 #    Uses series.json and episodes.json cache to rename
@@ -40,12 +47,12 @@ python cache_episodes_data.py (base_dir)
 #    If out of date, then refresh the cache
 #    This can be done by deleting the series.json and episodes.json 
 #    then run steps 1 and 2 manually
-python rename_episodes.py (base_dir)
+python scripts/rename_episodes.py (base_dir)
 
 # 4. Remove garbage files inside each folder
 #    These are usually .txt or .nfo files that come with the torrent
 #    Will ask a prompt for each tv show folder (y/n)
-python delete_garbage.py (base_dir)
+python scripts/delete_garbage.py (base_dir)
 ```
 
 ## Todo
