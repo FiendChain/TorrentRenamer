@@ -22,7 +22,6 @@ class TVDirectoryView(QTabWidget):
         self.addTab(self.completed_view, "Complete")
 
     def set_directory(self, directory):
-        directory.update_parser()
         parser = directory.parser_results
 
         self.rename_view.set_model(parser.renames)

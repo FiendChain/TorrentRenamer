@@ -16,15 +16,26 @@ def catch_errors(func):
             self.onError.emit(ex.msg)
     return wrapper 
 
-class HardRefreshThread(QThread):
+class RefreshThread(QThread):
     def __init__(self, app):
         super().__init__(parent=app)
         self.app = app
+        self.is_hard = False
+
+    def start(self, is_hard, *args, **kwargs):
+        self.is_hard = is_hard
+        super().start(*args, **kwargs)
     
     def run(self):
-        self.app.refresh_root_dir()
         for directory in self.app.directories:
-            directory.update_parser()
+            try:
+                if self.is_hard:
+                    directory.refresh_episodes_data()
+                directory.update_parser()
+            except AppError as ex:
+                self.app.onError.emit(ex.msg)
+            except AppWarning as ex:
+                self.app.onWarning.emit(ex.msg)
 
 class App(QObject):
     directoriesUpdate = pyqtSignal(list)
@@ -38,30 +49,51 @@ class App(QObject):
 
         self.root_dir = None 
         self.directories = []
+        self.directory_lookup = {}
         self.parser_results = None
         self.idx = 0
 
-        self.hard_refresh_thread = HardRefreshThread(self)
+        self.refresh_thread = RefreshThread(self)
 
     def refresh_root_dir(self):
-        if self.root_dir is None:
+        if self.refresh_thread.isRunning():
+            self.onWarning.emit("Cannnot scan while refreshing")
             return
 
-        self.directories = []
+        new_directories = []
+
         for filename in os.listdir(self.root_dir):
+            # remove old listeners since garbage collected
+            if filename in self.directory_lookup:
+                directory = self.directory_lookup[filename]
+                try:
+                    directory.statusChanged.disconnect()
+                except:
+                    pass
+                new_directories.append(directory)
+                continue
+            # add new directory
             filepath = os.path.join(self.root_dir, filename)
             if not os.path.isdir(filepath):
                 continue
             directory = TVDirectory(filepath, self.api)
-            self.directories.append(directory)
+            new_directories.append(directory)
+            self.directory_lookup[filename] = directory
+        # so that we get correct order
+        self.directories = new_directories
         self.directoriesUpdate.emit(self.directories)
     
     def set_root_dir(self, root_dir):
         self.root_dir = root_dir
+        self.directories = []
+        self.directory_lookup = {}
         self.refresh_root_dir()
     
     def select_base_dir(self, idx):
         self.idx = idx
+
+        if not self.refresh_thread.isRunning(): 
+            self.current_directory.update_parser()
         self.onDirectorySelect.emit(self.current_directory)
     
     @property
@@ -72,17 +104,14 @@ class App(QObject):
         self.current_directory.update_series_data(data)
     
     def soft_refresh_directories(self):
-        pass
-        # self.refresh_root_dir(p)
-        # for directory in self.directories:
-        #     directory.update_parser()
+        if self.refresh_thread.isRunning():
+            return
+        self.refresh_thread.start(False)
     
     def hard_refresh_directories(self):
-        if self.hard_refresh_thread.isRunning():
+        if self.refresh_thread.isRunning():
             return
-        self.hard_refresh_thread.start()
-        
-        
+        self.refresh_thread.start(True)
             
     @catch_errors
     def dir_refresh(self):

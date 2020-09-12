@@ -17,6 +17,7 @@ STATUS_LOOKUP = {
 
 class DirectoryList(QWidget):
     indexChanged = pyqtSignal(int)
+    onScan = pyqtSignal()
     onSoftRefresh = pyqtSignal()
     onHardRefresh = pyqtSignal()
 
@@ -38,12 +39,15 @@ class DirectoryList(QWidget):
         widget = QWidget()
         layout = QHBoxLayout()
         
+        scan_btn = QPushButton("Scan Folders")
         soft_refresh_btn = QPushButton("Soft Refresh")
         hard_refresh_btn = QPushButton("Hard Refresh")
 
+        layout.addWidget(scan_btn)
         layout.addWidget(soft_refresh_btn)
         layout.addWidget(hard_refresh_btn)
 
+        scan_btn.clicked.connect(self.onScan.emit)
         soft_refresh_btn.clicked.connect(self.onSoftRefresh.emit)
         hard_refresh_btn.clicked.connect(self.onHardRefresh.emit)
 

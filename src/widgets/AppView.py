@@ -28,6 +28,7 @@ class AppView(QMainWindow):
         # app <=> dirlist
         app.directoriesUpdate.connect(self.dir_list.update_directories)
         self.dir_list.indexChanged.connect(app.select_base_dir)
+        self.dir_list.onScan.connect(app.refresh_root_dir)
         self.dir_list.onSoftRefresh.connect(app.soft_refresh_directories)
         self.dir_list.onHardRefresh.connect(app.hard_refresh_directories)
 
