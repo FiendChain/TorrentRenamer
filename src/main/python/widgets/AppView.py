@@ -9,7 +9,7 @@ from .DirectoryList import DirectoryList
 from .TVDirectoryView import TVDirectoryView
 from .SeriesSelector import SeriesSelector
 
-from src.util import get_series_from_path
+from util import get_series_from_path
 
 class AppView(QMainWindow):
     def __init__(self, app, *args, **kwargs):

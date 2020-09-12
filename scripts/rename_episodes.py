@@ -1,7 +1,9 @@
 from argparse import ArgumentParser
 import os
-from src.util import parse_directory, clean
+import sys
+sys.path.insert(0, "./src/main/python/")
 
+from util import parse_directory, clean
 
 def main():
     parser = ArgumentParser()

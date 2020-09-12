@@ -3,8 +3,11 @@ import os
 import json
 import re
 
-from src.api import Api
-from src.util import get_series_from_path
+import sys
+sys.path.insert(0, "./src/main/python/")
+
+from api import Api
+from util import get_series_from_path
 
 def main():
     parser = ArgumentParser()

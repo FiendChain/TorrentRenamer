@@ -1,7 +1,7 @@
 import json
 import os
 import logging
-from src.util import parse_directory, clean
+from util import parse_directory, clean
 
 from .ParserResults import ParserResults
 from PyQt5.QtCore import pyqtSignal, QObject

@@ -1,7 +1,9 @@
 from argparse import ArgumentParser
 import os, json, re
+import sys
+sys.path.insert(0, "./src/main/python/")
 
-from src.api import Api
+from api import Api
 
 def main():
     parser = ArgumentParser()

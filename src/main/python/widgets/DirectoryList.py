@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import\
     QPushButton, QStyle
 
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
-from src.models import TVDirectoryStatus
+from models import TVDirectoryStatus
 
 STATUS_LOOKUP = {
     TVDirectoryStatus.SUCCESS: QStyle.SP_DialogApplyButton,

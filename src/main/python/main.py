@@ -1,10 +1,11 @@
-from PyQt5.QtWidgets import QApplication
-from src.widgets import AppView
-from src.models import App
-from src.api import Api
+from fbs_runtime.application_context.PyQt5 import ApplicationContext
+from widgets import AppView
+from models import App
+from api import Api
 from argparse import ArgumentParser
 import os
 import logging
+import sys
     
 def main():
     parser = ArgumentParser()
@@ -14,8 +15,8 @@ def main():
 
     logging.basicConfig(filename='history.log',level=logging.INFO)
 
-    qapp = QApplication([])
-    qapp.setStyle("Fusion")
+    qctx = ApplicationContext()       # 1. Instantiate ApplicationContext
+    qctx.app.setStyle("Fusion")
 
     api = Api.load_api(args.cred)
     app = App(api)
@@ -25,7 +26,7 @@ def main():
     app_view.setWindowTitle("Torrent Renamer")
     app_view.show()
 
-    qapp.exec_()
+    return qctx.app.exec_()
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
