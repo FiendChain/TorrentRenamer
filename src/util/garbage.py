@@ -16,7 +16,7 @@ def del_filter(name):
         return True
     return False
 
-def clean(base_dir, root=True):
+def clean(base_dir, root=True, debug=None):
     for filename in os.listdir(base_dir):
         filepath = os.path.join(base_dir, filename)
         if os.path.isdir(filepath):
@@ -27,5 +27,6 @@ def clean(base_dir, root=True):
     
     n = len(os.listdir(base_dir))
     if n == 0:
-        print(f"removing {base_dir}")
+        if debug is not None:
+            debug(base_dir)
         os.rmdir(base_dir)

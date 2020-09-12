@@ -4,12 +4,15 @@ from src.models import App
 from src.api import Api
 from argparse import ArgumentParser
 import os
+import logging
     
 def main():
     parser = ArgumentParser()
     parser.add_argument("--rootdir", default="F:/TV Shows/")
     parser.add_argument("--cred", default="credentials.json")
     args = parser.parse_args()
+
+    logging.basicConfig(filename='history.log',level=logging.INFO)
 
     qapp = QApplication([])
     qapp.setStyle("Fusion")

@@ -1,10 +1,10 @@
 import json
 import os
+import logging
 from src.util import parse_directory, clean
 
 from .ParserResults import ParserResults
 from PyQt5.QtCore import pyqtSignal, QObject
-
 from .Errors import AppError, AppWarning
 
 class TVDirectoryStatus:
@@ -79,8 +79,8 @@ class TVDirectory(QObject):
             old_path = os.path.join(self.fullpath, entry.old_path)
             new_path = os.path.join(self.fullpath, entry.new_path)
 
-            # os.rename(old_path, new_path)
-            print(f"ren {old_path} => {new_path}")
+            os.rename(old_path, new_path)
+            logging.info(f"[RENAME] {old_path} => {new_path}")
         return True
     
     def delete_garbage(self):
@@ -89,12 +89,14 @@ class TVDirectory(QObject):
 
         for path in self.parser_results.deletes:
             filepath = os.path.join(self.fullpath, path) 
-            # os.remove(filepath)
-            print(f"del {filepath}")
+            os.remove(filepath)
+            logging.info(f"[DELETE] {filepath}")
         return True
     
     def cleanup(self):
-        clean(self.fullpath)
+        def callback(directory):
+            logging.info(f"[CLEAN] {directory}")
+        clean(self.fullpath, debug=callback)
         return True
 
     def update_parser(self):
