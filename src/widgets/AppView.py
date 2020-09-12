@@ -44,24 +44,28 @@ class AppView(QMainWindow):
 
         search_btn = QPushButton("Select series")
         search_btn.pressed.connect(self.launch_series_popup)
-
-        refresh_episodes = QPushButton("Refresh episodes")
+        refresh_episodes = QPushButton("Refresh episodes data")
         refresh_episodes.pressed.connect(self.app.dir_refresh)
+        rescan_btn = QPushButton("Rescan Files")
+        rescan_btn.pressed.connect(self.app.dir_rescan)
+
+        auto_btn = QPushButton("Auto")
+        auto_btn.pressed.connect(self.app.dir_auto)
         rename_btn = QPushButton("Rename")
         rename_btn.pressed.connect(self.app.dir_rename)
         delete_btn = QPushButton("Remove Garbage")
         delete_btn.pressed.connect(self.app.dir_delete_garbage)
         cleanup_btn = QPushButton("Cleanup")
         cleanup_btn.pressed.connect(self.app.dir_cleanup)
-        auto_btn = QPushButton("Auto")
-        auto_btn.pressed.connect(self.app.dir_auto)
 
         layout.addWidget(search_btn)
         layout.addWidget(refresh_episodes)
+        layout.addWidget(rescan_btn)
+
+        layout.addWidget(auto_btn)
         layout.addWidget(rename_btn)
         layout.addWidget(delete_btn)
         layout.addWidget(cleanup_btn)
-        layout.addWidget(auto_btn)
 
         group.setLayout(layout)
 

@@ -27,11 +27,14 @@ class RefreshThread(QThread):
         super().start(*args, **kwargs)
     
     def run(self):
-        for directory in self.app.directories:
+        for i, directory in enumerate(self.app.directories):
             try:
                 if self.is_hard:
                     directory.refresh_episodes_data()
                 directory.update_parser()
+                # update directory if selected
+                if self.app.idx == i:
+                    self.app.onDirectorySelect.emit(self.app.current_directory)
             except AppError as ex:
                 self.app.onError.emit(ex.msg)
             except AppWarning as ex:
@@ -112,28 +115,37 @@ class App(QObject):
         if self.refresh_thread.isRunning():
             return
         self.refresh_thread.start(True)
+
+    @catch_errors
+    def dir_rescan(self):
+        self.current_directory.update_parser()
+        self.onDirectorySelect.emit(self.current_directory)
             
     @catch_errors
     def dir_refresh(self):
         self.current_directory.refresh_episodes_data()
         self.current_directory.update_parser()
+        self.onDirectorySelect.emit(self.current_directory)
 
     @catch_errors
     def dir_rename(self):
         self.current_directory.rename()
         self.current_directory.cleanup()
         self.current_directory.update_parser()
+        self.onDirectorySelect.emit(self.current_directory)
 
     @catch_errors
     def dir_delete_garbage(self):
         self.current_directory.delete_garbage()
         self.current_directory.cleanup()
         self.current_directory.update_parser()
+        self.onDirectorySelect.emit(self.current_directory)
 
     @catch_errors
     def dir_cleanup(self):
         self.current_directory.cleanup()
         self.current_directory.update_parser()
+        self.onDirectorySelect.emit(self.current_directory)
 
     @catch_errors
     def dir_auto(self):
@@ -141,5 +153,6 @@ class App(QObject):
         self.current_directory.delete_garbage()
         self.current_directory.cleanup()
         self.current_directory.update_parser()
+        self.onDirectorySelect.emit(self.current_directory)
 
 
