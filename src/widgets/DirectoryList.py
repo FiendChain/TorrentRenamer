@@ -1,14 +1,21 @@
 from PyQt5.QtWidgets import\
-    QLabel,\
-    QListWidget, QWidget,\
+    QLabel,QWidget,\
+    QListWidget, QListWidgetItem,\
     QHBoxLayout, QVBoxLayout,\
     QHeaderView, QSizePolicy,\
-    QPushButton
+    QPushButton, QStyle
 
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
+from src.models import TVDirectoryStatus
+
+STATUS_LOOKUP = {
+    TVDirectoryStatus.SUCCESS: QStyle.SP_DialogApplyButton,
+    TVDirectoryStatus.ERROR: QStyle.SP_MessageBoxCritical,
+    TVDirectoryStatus.WARNING: QStyle.SP_MessageBoxWarning,
+    TVDirectoryStatus.UNKNOWN: QStyle.SP_BrowserReload,
+}
 
 class DirectoryList(QWidget):
-    basedirChanged = pyqtSignal(str)
     indexChanged = pyqtSignal(int)
     onRefresh = pyqtSignal()
 
@@ -22,7 +29,7 @@ class DirectoryList(QWidget):
         vlayout.addWidget(self.create_controls())
 
         self.setLayout(vlayout)
-        self.basedirs = []
+        self.directories = []
 
         self.list_widget.currentRowChanged.connect(self.row_change)
     
@@ -38,15 +45,25 @@ class DirectoryList(QWidget):
 
         return widget
 
-    def update_list(self, basedirs):
-        self.basedirs = basedirs
+    def update_directories(self, directories):
+        self.directories = directories
         self.list_widget.clear()
-        for basedir in basedirs:
-            self.list_widget.addItem(basedir)
-
+        for directory in directories:
+            item = self.create_list_item(directory)
+            self.list_widget.addItem(item)
+    
+    def create_list_item(self, directory):
+        item = QListWidgetItem(directory.basedir)
+        def set_icon(status):
+            qicon = STATUS_LOOKUP[status]
+            icon = self.style().standardIcon(qicon)
+            item.setIcon(icon)
+            
+        set_icon(directory.status)
+        directory.statusChanged.connect(set_icon)
+        return item
+    
     def row_change(self, i):
-        basedir = self.basedirs[i]
-        self.basedirChanged.emit(basedir)    
         self.indexChanged.emit(i)
 
         
