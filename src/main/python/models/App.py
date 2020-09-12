@@ -93,10 +93,7 @@ class App(QObject):
     @property
     def current_directory(self):
         return self.directories[self.idx]
-    
-    def update_series_data(self, data):
-        self.current_directory.update_series_data(data)
-    
+
     def soft_refresh_directories(self):
         if self.refresh_thread.isRunning():
             return
@@ -106,6 +103,13 @@ class App(QObject):
         if self.refresh_thread.isRunning():
             return
         self.refresh_thread.start(True)
+
+    @catch_errors 
+    def update_series_data(self, data):
+        self.current_directory.update_series_data(data)
+        self.current_directory.refresh_episodes_data()
+        self.current_directory.update_parser()
+        self.onDirectorySelect.emit(self.current_directory)
 
     @catch_errors
     def dir_rescan(self):

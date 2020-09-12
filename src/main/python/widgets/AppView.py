@@ -72,11 +72,8 @@ class AppView(QMainWindow):
         return group
 
     def launch_series_popup(self):
-        subdir = self.app.get_sub_dir()
-        if subdir is None:
-            return
-
-        sname = get_series_from_path(subdir)
+        directory = self.app.current_directory
+        sname = get_series_from_path(directory.basedir)
             
         w = SeriesSelector(self.app.api)
         w.set_search_text(sname)
