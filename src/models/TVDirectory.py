@@ -79,6 +79,8 @@ class TVDirectory(QObject):
             old_path = os.path.join(self.fullpath, entry.old_path)
             new_path = os.path.join(self.fullpath, entry.new_path)
 
+            # create new folder
+            os.makedirs(os.path.dirname(new_path), exist_ok=True)
             os.rename(old_path, new_path)
             logging.info(f"[RENAME] {old_path} => {new_path}")
         return True
