@@ -74,8 +74,12 @@ def get_new_name(info, ep_lookup, title):
     if k in ep_lookup:
         edata = ep_lookup.get(k)
         name = edata.get('episodeName')
-        name = clean_string(name)
-        name = f"-{name}"
+        if name is not None:
+            name = str(name)
+            name = clean_string(name)
+            name = f"-{name}"
+        else:
+            name = ''
     else:
         name = ''
 
